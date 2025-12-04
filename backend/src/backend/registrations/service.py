@@ -1,6 +1,6 @@
 """Registration service for business logic."""
 
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import List
 
 from .repository import RegistrationRepository
@@ -93,7 +93,7 @@ class RegistrationService:
             'userId': user_id,
             'eventId': event_id,
             'status': status,
-            'registeredAt': datetime.utcnow().isoformat(),
+            'registeredAt': datetime.now(UTC).isoformat(),
             'waitlistPosition': waitlist_position
         }
         

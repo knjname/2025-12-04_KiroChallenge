@@ -1,7 +1,7 @@
 """User repository for database operations."""
 
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, UTC
 from botocore.exceptions import ClientError
 
 from ..core.config import Config
@@ -36,7 +36,7 @@ class UserRepository:
             EntityAlreadyExistsError: If user with same ID already exists
         """
         try:
-            user_data['createdAt'] = datetime.utcnow().isoformat()
+            user_data['createdAt'] = datetime.now(UTC).isoformat()
             user_data['PK'] = f"USER#{user_data['userId']}"
             user_data['SK'] = f"USER#{user_data['userId']}"
             

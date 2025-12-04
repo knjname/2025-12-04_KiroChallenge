@@ -132,7 +132,7 @@ class RegistrationRepository:
             status: New status
             waitlist_position: New waitlist position (optional)
         """
-        from datetime import datetime
+        from datetime import datetime, UTC
         
         if waitlist_position is None:
             self.table.update_item(
@@ -145,7 +145,7 @@ class RegistrationRepository:
                 ExpressionAttributeValues={
                     ':status': status,
                     ':null': None,
-                    ':promoted': datetime.utcnow().isoformat()
+                    ':promoted': datetime.now(UTC).isoformat()
                 }
             )
         else:

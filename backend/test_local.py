@@ -30,9 +30,16 @@ class MockTable:
     def query(self, **kwargs):
         results = []
         pk = kwargs.get('ExpressionAttributeValues', {}).get(':pk')
+        sk_prefix = kwargs.get('ExpressionAttributeValues', {}).get(':sk', '')
+        
         for key, item in self.items.items():
             if item.get('PK') == pk:
-                results.append(item)
+                # Check if SK condition exists
+                if 'begins_with(SK' in kwargs.get('KeyConditionExpression', ''):
+                    if item.get('SK', '').startswith(sk_prefix):
+                        results.append(item)
+                else:
+                    results.append(item)
         return {'Items': results}
     
     def scan(self, **kwargs):
@@ -169,6 +176,8 @@ def test_registration_workflow():
             "userId": users[i]
         })
         print(f"   User {i}: Status {reg_response.status_code}")
+        if reg_response.status_code != 200:
+            print(f"   Error: {reg_response.json()}")
         assert reg_response.status_code == 200
         reg = reg_response.json()
         print(f"   Status: {reg['status']}")
