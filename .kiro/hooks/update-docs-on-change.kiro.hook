@@ -2,12 +2,12 @@
   "name": "Update Docs on Source Change",
   "description": "Automatically updates documentation when source code files are modified",
   "trigger": {
-    "type": "onFileSave",
+    "type": "fileEdited",
     "filePattern": "**/*.{py,ts,js,tsx,jsx}"
   },
   "action": {
-    "type": "sendMessage",
-    "message": "A source code file was just saved: {{filePath}}. Please review the changes and update any relevant documentation files (README.md, API docs, inline comments) to reflect the current state of the code. Focus on:\n\n1. Updating function/class descriptions if signatures changed\n2. Updating usage examples if behavior changed\n3. Adding documentation for new features\n4. Removing documentation for deleted code\n5. Ensuring consistency between code and docs"
+    "type": "askAgent",
+    "message": "A source code file was just edited: {{filePath}}. Please review the changes and update any relevant documentation files (README.md, API docs, inline comments) to reflect the current state of the code. Focus on:\n\n1. Updating function/class descriptions if signatures changed\n2. Updating usage examples if behavior changed\n3. Adding documentation for new features\n4. Removing documentation for deleted code\n5. Ensuring consistency between code and docs"
   },
   "enabled": true
 }
