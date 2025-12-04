@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Set up testing infrastructure
+- [x] 1. Set up testing infrastructure
   - Install Hypothesis for property-based testing
   - Configure pytest for the project
   - Set up test database configuration (local DynamoDB or mocks)
@@ -8,7 +8,7 @@
   - _Requirements: All (testing foundation)_
 
 - [ ] 2. Implement User data models and validation
-- [ ] 2.1 Create User Pydantic models
+- [x] 2.1 Create User Pydantic models
   - Add User, UserCreate models to models.py
   - Implement validation for userId (1-100 chars) and name (1-200 chars)
   - _Requirements: 1.1, 1.3_
@@ -41,7 +41,7 @@
   - **Validates: Requirements 2.4**
 
 - [ ] 4. Implement DynamoDB operations for users
-- [ ] 4.1 Add user table operations to database.py
+- [x] 4.1 Add user table operations to database.py
   - Implement create_user, get_user, user_exists methods
   - Handle DynamoDB operations with proper error handling
   - Use existing Events table or create Users table
@@ -54,13 +54,13 @@
   - _Requirements: 1.1, 1.2_
 
 - [ ] 5. Implement DynamoDB operations for registrations
-- [ ] 5.1 Add registration table operations to database.py
+- [x] 5.1 Add registration table operations to database.py
   - Implement register_user, unregister_user, get_registrations methods
   - Design schema: eventId as partition key, userId as sort key
   - Create GSI for querying by userId
   - _Requirements: 3.1, 4.1, 5.1_
 
-- [ ] 5.2 Add waitlist operations to database.py
+- [x] 5.2 Add waitlist operations to database.py
   - Implement add_to_waitlist, remove_from_waitlist, get_waitlist methods
   - Maintain waitlist ordering using timestamps or position field
   - Implement promote_from_waitlist for automatic promotion
@@ -173,19 +173,19 @@
   - **Validates: Requirements 5.4**
 
 - [ ] 9. Create API endpoints for user management
-- [ ] 9.1 Add POST /users endpoint
+- [x] 9.1 Add POST /users endpoint
   - Accept userId and name in request body
   - Validate input using Pydantic models
   - Call user creation logic
   - Return 201 Created with user object or appropriate error
   - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ] 9.2 Add GET /users/{user_id} endpoint
+- [x] 9.2 Add GET /users/{user_id} endpoint
   - Retrieve user by userId
   - Return 200 OK with user object or 404 Not Found
   - _Requirements: 1.1_
 
-- [ ] 9.3 Add GET /users/{user_id}/registrations endpoint
+- [x] 9.3 Add GET /users/{user_id}/registrations endpoint
   - Retrieve all registered events for a user
   - Return 200 OK with list of events
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
@@ -198,14 +198,14 @@
   - _Requirements: 1.1, 1.2, 5.1_
 
 - [ ] 10. Create API endpoints for registration management
-- [ ] 10.1 Add POST /events/{event_id}/register endpoint
+- [x] 10.1 Add POST /events/{event_id}/register endpoint
   - Accept userId in request body
   - Validate user and event exist
   - Call registration logic with capacity and waitlist handling
   - Return 200 OK with registration status or appropriate error
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 10.2 Add DELETE /events/{event_id}/register/{user_id} endpoint
+- [x] 10.2 Add DELETE /events/{event_id}/register/{user_id} endpoint
   - Validate user and event exist
   - Call unregistration logic with waitlist promotion
   - Return 200 OK with success message or appropriate error
