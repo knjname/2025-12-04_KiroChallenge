@@ -5,6 +5,9 @@ import sys
 import os
 
 # Mock boto3 before importing the app
+# Singleton table to persist data across requests
+_mock_table_instance = None
+
 class MockTable:
     def __init__(self):
         self.items = {}
@@ -34,10 +37,30 @@ class MockTable:
     
     def scan(self, **kwargs):
         results = []
+        filter_expr = kwargs.get('FilterExpression', '')
+        expr_values = kwargs.get('ExpressionAttributeValues', {})
+        expr_names = kwargs.get('ExpressionAttributeNames', {})
+        
         for item in self.items.values():
-            # Simple filter for EVENT# items
-            if item.get('PK', '').startswith('EVENT#') and item.get('SK', '').startswith('EVENT#'):
-                results.append(item)
+            # Check filter conditions
+            if 'begins_with(PK' in filter_expr and 'begins_with(SK' in filter_expr:
+                # Filter for EVENT# items
+                pk_prefix = expr_values.get(':pk', '')
+                sk_prefix = expr_values.get(':sk', '')
+                if item.get('PK', '').startswith(pk_prefix) and item.get('SK', '').startswith(sk_prefix):
+                    # Check status filter if present
+                    if '#status' in filter_expr:
+                        status_value = expr_values.get(':status')
+                        if item.get('status') == status_value:
+                            results.append(item)
+                    else:
+                        results.append(item)
+            elif 'SK = :sk' in filter_expr:
+                # Filter for user registrations
+                sk_value = expr_values.get(':sk')
+                if item.get('SK') == sk_value:
+                    results.append(item)
+        
         return {'Items': results}
     
     def update_item(self, Key, **kwargs):
@@ -78,7 +101,10 @@ class MockTable:
 
 class MockDynamoDB:
     def __init__(self):
-        self.table = MockTable()
+        global _mock_table_instance
+        if _mock_table_instance is None:
+            _mock_table_instance = MockTable()
+        self.table = _mock_table_instance
     
     def Table(self, name):
         return self.table
@@ -139,7 +165,7 @@ def test_registration_workflow():
     # 3. Register first 2 users
     print("\n3. Registering first 2 users (filling capacity)...")
     for i in range(2):
-        reg_response = client.post(f"/events/test-event-1/register", json={
+        reg_response = client.post(f"/events/test-event-1/registrations", json={
             "userId": users[i]
         })
         print(f"   User {i}: Status {reg_response.status_code}")
@@ -160,7 +186,7 @@ def test_registration_workflow():
     
     # 5. Register 3rd user (should go to waitlist)
     print("\n5. Registering 3rd user (should go to waitlist)...")
-    reg_response = client.post(f"/events/test-event-1/register", json={
+    reg_response = client.post(f"/events/test-event-1/registrations", json={
         "userId": users[2]
     })
     print(f"   Status: {reg_response.status_code}")
@@ -173,7 +199,7 @@ def test_registration_workflow():
     
     # 6. Register 4th user (should also go to waitlist)
     print("\n6. Registering 4th user (should also go to waitlist)...")
-    reg_response = client.post(f"/events/test-event-1/register", json={
+    reg_response = client.post(f"/events/test-event-1/registrations", json={
         "userId": users[3]
     })
     print(f"   Status: {reg_response.status_code}")
@@ -196,7 +222,7 @@ def test_registration_workflow():
     
     # 8. Unregister first user (should promote from waitlist)
     print("\n8. Unregistering first user (should promote from waitlist)...")
-    unreg_response = client.delete(f"/events/test-event-1/register/{users[0]}")
+    unreg_response = client.delete(f"/events/test-event-1/registrations/{users[0]}")
     print(f"   Status: {unreg_response.status_code}")
     assert unreg_response.status_code == 200
     

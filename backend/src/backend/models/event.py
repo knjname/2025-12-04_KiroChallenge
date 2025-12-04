@@ -1,42 +1,11 @@
+"""Event domain models."""
+
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 
 
-# User Models
-class UserCreate(BaseModel):
-    userId: str = Field(..., min_length=1, max_length=100)
-    name: str = Field(..., min_length=1, max_length=200)
-
-
-class User(BaseModel):
-    userId: str = Field(..., min_length=1, max_length=100)
-    name: str = Field(..., min_length=1, max_length=200)
-    createdAt: Optional[str] = None
-
-
-# Registration Models
-class RegistrationRequest(BaseModel):
-    userId: str = Field(..., min_length=1, max_length=100)
-
-
-class Registration(BaseModel):
-    userId: str
-    eventId: str
-    registeredAt: str
-    status: str  # "registered" or "waitlisted"
-    waitlistPosition: Optional[int] = None
-
-
-class RegistrationStatus(BaseModel):
-    eventId: str
-    registeredCount: int
-    waitlistCount: int
-    registeredUsers: List[str] = []
-    waitlistUsers: List[str] = []
-
-
-# Event Models
 class EventBase(BaseModel):
+    """Base event model with common fields."""
     title: str = Field(..., min_length=1, max_length=200)
     description: str = Field(..., min_length=1, max_length=1000)
     date: str = Field(..., pattern=r'^\d{4}-\d{2}-\d{2}$')
@@ -47,11 +16,13 @@ class EventBase(BaseModel):
 
 
 class EventCreate(EventBase):
+    """Model for creating a new event."""
     eventId: str = Field(..., min_length=1, max_length=100)
     hasWaitlist: bool = False
 
 
 class EventUpdate(BaseModel):
+    """Model for updating an existing event."""
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = Field(None, min_length=1, max_length=1000)
     date: Optional[str] = Field(None, pattern=r'^\d{4}-\d{2}-\d{2}$')
@@ -63,5 +34,6 @@ class EventUpdate(BaseModel):
 
 
 class Event(EventBase):
+    """Complete event model."""
     eventId: str
     hasWaitlist: bool = False
